@@ -57,3 +57,72 @@ Note** if we use this single node cluster and later want to clean it up to start
 we can delete /usr/local/druid/var
 
 ---Testing quickstart
+It may take a few seconds for all Druid services to finish starting, 
+including the Druid router, which serves the console. 
+If you attempt to open the Druid console before startup is complete, 
+you may see errors in the browser.
+
+Loading data:
+Ingestion specs define the schema of the data Druid reads and stores. 
+You can write ingestion specs by hand or using the data loader, 
+as we'll do here to perform batch file loading with Druid's native batch ingestion.
+
+The Druid distribution bundles sample data we can use. 
+The sample data located in quickstart/tutorial/wikiticker-2015-09-12-sampled.json.gz 
+in the Druid root directory represents Wikipedia page edits for a given day.
+
+Local disk > 
+Base directory: quickstart/tutorial/
+File filter: wikiticker-2015-09-12-sampled.json.gz
+
+Apply>
+parse data>
+The data loader tries to determine the parser appropriate for the data format 
+automatically. In this case it identifies the data format as json
+
+With the JSON parser selected, click Next: Parse time. The Parse time settings are 
+where you view and adjust the primary timestamp column for the data.
+
+Druid requires data to have a primary timestamp column (internally stored in a column called __time). 
+If you do not have a timestamp in your data, select Constant value. 
+In our example, the data loader determines that the time column is the only candidate 
+that can be used as the primary time column.
+
+Click Next: Transform, Next: Filter, and then Next: Configure schema
+
+The Configure schema settings are where you configure what dimensions and metrics are ingested. 
+
+Since our dataset is very small, you can turn off rollup by unsetting the Rollup 
+switch and confirming the change when prompted.
+
+Click Next: Partition to configure how the data will be split into segments. 
+In this case, choose DAY as the Segment granularity.
+
+Click Next: Tune and Next: Publish.
+
+The Publish settings are where you specify the datasource name in Druid. 
+Let's change the default name from wikiticker-2015-09-12-sampled to wikipedia.
+
+Click Next: Edit spec to review the ingestion spec we've constructed with the data loader.
+
+Submit.
+
+The new task for our wikipedia datasource now appears in the Ingestion view.
+
+The task status should be "SUCCESS", with the duration of the task indicated.
+
+A successful task means that one or more segments have been built and are now picked up by our data servers.
+
+Querying the data:
+Click Datasources from the console header.
+
+When the datasource is available, open the Actions menu (Actions) for that datasource 
+and choose Query with SQL. 
+
+SELECT * FROM "wikipedia"
+
+
+
+
+
+

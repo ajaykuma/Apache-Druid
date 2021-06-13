@@ -1,0 +1,59 @@
+Druid Quickstart setup
+--------------------
+--Setup 1 linux machine in vmbox/your own linux/cloud platform
+--java installed (openjdk8)[refer java_setup file if needed]
+
+if logged in as root or
+$sudo su
+<pswd>
+
+--Download druid:
+root@m1:~# wget https://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/druid/0.21.1/apache-druid-0.21.1-bin.tar.gz
+--2021-06-13 13:12:38--  https://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/druid/0.21.1/apache-druid-0.21.1-bin.tar.gz
+Resolving ftp-stud.hs-esslingen.de (ftp-stud.hs-esslingen.de)... 129.143.116.10, 2001:7c0:700::10
+Connecting to ftp-stud.hs-esslingen.de (ftp-stud.hs-esslingen.de)|129.143.116.10|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 374455414 (357M) [application/x-gzip]
+Saving to: ‘apache-druid-0.21.1-bin.tar.gz’
+
+apache-druid-0.21.1-bin.tar.gz        100%[======================================================================>] 357.11M   264MB/s    in 1.4s
+
+2021-06-13 13:12:40 (264 MB/s) - ‘apache-druid-0.21.1-bin.tar.gz’ saved [374455414/374455414]
+ 
+root@m1:~# ls
+apache-druid-0.21.1-bin.tar.gz
+
+root@m1:~# java -version
+openjdk version "1.8.0_292"
+OpenJDK Runtime Environment (build 1.8.0_292-8u292-b10-0ubuntu1~18.04-b10)
+OpenJDK 64-Bit Server VM (build 25.292-b10, mixed mode)
+
+root@m1:~# cd /usr/local/
+root@m1:/usr/local# tar -xvf /root/apache-druid-0.21.1-bin.tar.gz
+root@m1:/usr/local# ln -s apache-druid-0.21.1 druid
+root@m1:/usr/local# chown -R hdu:hdu apache-druid-0.21.1/*
+root@m1:/usr/local# chown -R hdu:hdu apache-druid-0.21.1*
+root@m1:/usr/local# chown -R hdu:hdu druid*
+
+su - hdu
+hdu@m1:~$ vi .bashrc
+update .bashrc for 'hdu' user
+export DRUID_HOME=/usr/local/druid
+export PATH=$PATH:$DRUID_HOME/bin
+export DRUID_JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+export PATH=$PATH:$DRUID_JAVA_HOME/bin
+
+hdu@m1:~$ source .bashrc
+
+
+to test quickstart of druid:
+<logged in as hdu>
+hdu@m1:~$ start-micro-quickstart
+
+Access console:
+http://<ipaddress:8888>
+
+Note** if we use this single node cluster and later want to clean it up to start fresh
+we can delete /usr/local/druid/var
+
+---Testing quickstart

@@ -1,0 +1,7 @@
+JAVA 8 setup on ubuntu 18 Bionic
+---------------------
+add-apt-repository ppa:webupd8team/java
+apt-get update
+apt-get install openjdk-8-jdk
+java -version
+ls /usr/lib/jvm/java-8-openjdk-amd64/

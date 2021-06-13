@@ -1,0 +1,335 @@
+Apache Druid Cluster Deployment
+------------------------
+Read the entire file before beginning..
+Notes**
+#What we need..
+A Master server to host the Coordinator and Overlord processes
+Two scalable, fault-tolerant Data servers running Historical and MiddleManager processes
+A query server, hosting the Druid Broker and Router processes.
+
+Master server
+The Coordinator and Overlord processes are responsible for handling the metadata and coordination 
+needs of your cluster. They can be colocated together on the same server.
+
+Data server
+Historicals and MiddleManagers can be colocated on the same server 
+to handle the actual data in your cluster. These servers benefit greatly from CPU, RAM, and SSDs.
+
+Query server
+Druid Brokers accept queries and farm them out to the rest of the cluster. 
+They also optionally maintain an in-memory query cache. These servers benefit greatly from CPU and RAM.
+
+You can consider co-locating any open source UIs 
+or query libraries on the same server that the Broker is running on.
+
+You can choose smaller/larger hardware or less/more servers for your specific needs and constraints.
+
+If your use case has complex scaling requirements, you can also choose to 
+not co-locate Druid processes (e.g., standalone Historical servers).
+
+Warning: Druid only officially supports Java 8. Any Java version later than 8 is still experimental.
+in 'apache-druid-0.21.1' directory we will see.
+
+LICENSE and NOTICE files
+bin/* - scripts related to the single-machine quickstart
+conf/druid/cluster/* - template configurations for a clustered setup
+extensions/* - core Druid extensions
+hadoop-dependencies/* - Druid Hadoop dependencies
+lib/* - libraries and dependencies for core Druid
+quickstart/* - files related to the single-machine quickstart
+
+Open ports (if using a firewall)
+If you're using a firewall or some other system that only allows traffic on specific ports, 
+allow inbound connections on the following:
+
+Master Server
+1527 (Derby metadata store; not needed if you are using a separate metadata store like MySQL or PostgreSQL)
+2181 (ZooKeeper; not needed if you are using a separate ZooKeeper cluster)
+8081 (Coordinator)
+8090 (Overlord)
+
+Data Server
+8083 (Historical)
+8091, 8100–8199 (Druid Middle Manager; you may need higher than port 8199 if you have a very high druid.worker.capacity)
+
+Query Server
+8082 (Broker)
+8088 (Router, if used)
+-----------------
+Setup Instructions**
+
+--Setup (3-4) machines(able to ping, able to pswdless ssh, able to connect to external network)
+    [when setting up instances in cloud: GCP/AWS refer instructions below]
+	[when setting up machines in VMBOX refer instructions below ]
+--java to be installed (openjdk8)[refer 'java_setup' file if needed]
+
+[when setting up instances in cloud: GCP/AWS]
+ Setting up machines in GCP (quick reference)
+ -------------------------------------------
+--GCP console > compute engine > vm instances
+--Instance templates > Create instance template (as per your area, requirements, OS choice, 
+  ram/disk choice)
+  In order to be able to connect to this instance using SSH client such as putty, first
+  create a private and public key using puttygen.
+--Using templates create atleast 3 machines
+--check connectivity to these using putty and private key which was created earlier
+
+--on each machine install java-8
+
+--on each machine update /etc/hosts
+(for example)
+10.15x.0.x  m1
+10.15x.0.y  m2
+10.15x.0.z  m3
+
+--on each machine generate ssh-keys for hdu user and copy public keys to authorize_keys file
+(optionally we can convert the private_key created earlier to *.pem format > deploy it on each
+machine > change permissions and use *.pem file to ssh from one machine to another [provided firewall
+rules were correctly configured]
+
+
+hdu@m1:~$ ssh-keygen -t rsa -P ""
+hdu@m2:~$ ssh-keygen -t rsa -P ""
+hdu@m3:~$ ssh-keygen -t rsa -P ""
+
+now to enable ssh
+hdu@m1:~$ cat .ssh/id_rsa.pub
+<get contents from public key>
+hdu@m2:~$ vi .ssh/authorized_keys
+<copy contents here>
+hdu@m3:~$ vi .ssh/authorized_keys
+<copy contents here>
+
+similarly from m2 and m3
+
+Also to be able to ssh itself
+on each node
+hdu@m1:~$ cat .ssh/id_rsa.pub >> .ssh/authorized_keys
+hdu@m2:~$ cat .ssh/id_rsa.pub >> .ssh/authorized_keys
+hdu@m3:~$ cat .ssh/id_rsa.pub >> .ssh/authorized_keys
+
+--test ssh (passwordless)
+==========================
+[when setting up machines in VMBOX]
+
+Ubuntu Nodes:
+Now on each machine
+	--- to login as root
+    	$sudo su 
+
+	---update and install necessary packages
+	$apt-get update
+	$apt-get install vim
+	$apt-get install wget
+	$apt-get install ntp
+	$apt-get install openssh-server
+	$apt-get update
+
+	---disable firewall
+	$ufw disable
+
+	---get your ipaddress
+	$ip address 
+
+	---get your hostname
+	$hostname 
+
+	update your /etc/hosts
+	127.0.0.1     localhost
+	ipaddress1     hostname1
+	ipaddress2    hostname2
+	ipaddress3    hostname3
+
+	update hostnames/check hostnames
+	cat /etc/hostname
+
+	(optional)sudo visudo and add 'hdu' as user next to root where you see ALL
+	This will give your user sudo access
+
+Setup java as mentioned in 'Java_Setup' file 
+or
+Download oracle jdk from oracle site
+---note** we are logged in as root
+create a directory under /usr/lib
+cd /usr/lib
+mkdir jvm
+cd jvm
+tar -xvf /home/mac/Downloads/jdk****
+
+update your java path in your user's .bashrc
+(ex: my user hdu)
+su - hdu
+
+vi .bashrc
+export JAVA_HOME=/usr/lib/jvm/jdk****
+export PATH=$PATH:$JAVA_HOME/bin
+
+save your .bashrc
+refresh it by ---> source .bashrc
+
+$java -version ( does it show your java version)
+
+Now Generate ssh keys for your user 'hdu' on ubuntu
+
+Commands:
+--------------
+---Note** we are logged in as 'hdu'
+To have SSH access across machines
+1.generate ssh keys using 
+$ssh-keygen -t rsa -P ""
+
+2.Distributing ssh public keys to other machines
+----------------------
+$hdu$m1:ssh-copy-id -i $HOME/.ssh/id_rsa.pub hdu@m2
+$hdu$m1:ssh-copy-id -i $HOME/.ssh/id_rsa.pub hdu@m3
+$hdu$m2:ssh-copy-id -i $HOME/.ssh/id_rsa.pub hdu@m1
+$hdu$m2:ssh-copy-id -i $HOME/.ssh/id_rsa.pub hdu@m3
+$hdu$m3:ssh-copy-id -i $HOME/.ssh/id_rsa.pub hdu@m1
+$hdu$m3:ssh-copy-id -i $HOME/.ssh/id_rsa.pub hdu@m2
+
+3.To enable SSH access to your local machine with this newly created key
+----------------------------------------
+to add the xxxx@master’s public SSH key (which should be in $HOME/.ssh/id_rsa.pub) 
+to the authorized_keys file of xxxx@master(in this user’s $HOME/.ssh/authorized_keys)
+m1$cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys
+m2$cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys
+m3$cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys
+
+Test your ssh access...
+Test java is installed
+
+===================================================
+Setup a Zookeeper ensemble (cluster of zookeeper with atleast 3 zk peers)
+----------------------------------
+For setting up a distributed druid cluster with external zookeeper (our own managed zookeeper)
+Note** If not using external zookeeper, we will have to run 3 masters with embedded zookeepers.
+
+#Setup atleast 3 machines (ubuntu /centos) within VMbox
+<if already done, then proceed..>
+
+#Steps to be performed on each node
+
+#Setup Zk ensemble
+---Download zookeeper package from http://archive.apache.org/dist/
+zookeeper-3.4.6.tar.gz  
+
+---Download on each node or download on 1st node and then copy(scp) to each node
+---After downloading repeat these steps on each node (say m1,m2,m3)
+
+su - root
+$cd /usr/local
+$tar -xvf /home/hdu/Downloads/zookeeper-3.4.6.tar.gz
+$ln -s zookeeper-3.4.6 zookeeper
+$chown -R hdu:hdu zookeeper*
+
+$su - hdu
+$vi .bashrc
+export ZOOKEEPER_HOME=/usr/local/zookeeper
+export PATH=$PATH:$ZOOKEEPER_HOME/bin
+--save
+
+$source .bashrc
+
+---updating zookeeper configs
+$cd /usr/local/zookeeper/conf
+$cp zoo_sample.cfg zoo.cfg
+
+#About properties
+[tickTime: in milliseconds unit of times for initLimit
+ initLimit:zookeeper uses these unit of times to connect to the cluster
+ syncLimit: time to come back in sync or peer will out of cluster
+  dataDir: cluster related and clients connected to zk cluster data
+  clientPort: how clients connect to zk
+  maxClientCnxns: how many cleints can connect
+  4lw.commands.whitelist=* : enabling 4 letter words such as stat,dump
+  2888: port for peers to communicate
+  3888: for leader election
+]
+
+#our properties
+$vi zoo.cfg
+
+	tickTime=2000
+	dataDir=/usr/local/zookeeper/state
+	clientPort=2181
+	initLimit=5
+	syncLimit=2
+	server.1=t1:2888:3888
+	server.2=t2:2888:3888
+	server.3=t3:2888:3888
+
+---we specified the servername as 'hostname' with quorum & leader election ports 
+   (i.e. 2888:3888, 2888:3888, 2888:3888) 
+---port 2888 for quorum peers to communicate to each other
+---port 3888 for leader election
+
+$cd /usr/local/zookeeper
+mkdir state
+
+---Every machine that is part of the ZooKeeper ensemble needs to know about every other machine in the ensemble. 
+As such, we need to attribute a server id to each machine by creating a file named myid, one for each server,
+ which resides in that server's data directory, as specified by the configuration file parameter dataDir.
+
+---Note: More information about ZooKeper configuration settings can be found in the ZooKeeper 
+   Getting Started Guide.
+
+#on node1
+echo 1 > state/myid
+
+#on node2
+echo 2 > state/myid
+
+#on node3
+echo 3 > state/myid
+
+ZooKeeper Startup
+Start up each ZooKeeper on each host
+
+m1$zkServer.sh start
+m2$zkServer.sh start
+m3$zkServer.sh start
+
+#check status of which peer acts as leader/follower
+$echo stat | nc m1 2181
+$echo stat | nc m2 2181
+$echo stat | nc m3 2181
+
+(optional)
+#We can also start zookeepers in foreground as follows
+
+m1$zkServer.sh start-foreground
+m2$zkServer.sh start-foreground
+m3$zkServer.sh start-foreground
+
+==================================
+Setup Druid on multiple nodes
+<refer 'Apache_Druid_quickstart' file to download and setup Druid on each node.>
+--before starting Druid processes, we need to edit config files in order to have a druid cluster deployed.
+
+<edit configurations as follows>
+--refer 'druid_cluster_setup_configs' file
+
+<after editing configs and copying them across machines>
+
+on m1:
+start-cluster-master-no-zk-server
+
+on m2:
+start-cluster-data-server
+
+on m3:
+start-cluster-query-server
+
+Access console:
+<ipaddress of machine hosting router:8888>
+
+--check status
+
+===================================================
+Basic cluster tuning guide:
+https://druid.apache.org/docs/latest/operations/basic-cluster-tuning.html
+
+
+
+
+

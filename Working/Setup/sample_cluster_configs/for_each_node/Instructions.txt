@@ -1,0 +1,40 @@
+--download druid git repo or atleast cluster folder
+--the cluster folder contains configs to setup a distributed druid cluster
+--after downloading, copy the folder to each node's druid path
+
+for node1
+cp -r <path>/cluster /usr/local/druid/conf/druid/
+
+for node2
+--if ssh enabled
+scp -r <path>/cluster hdu@m3:/usr/local/druid/conf/druid/
+
+for node3
+--if ssh enabled
+scp -r <path>/cluster hdu@m3:/usr/local/druid/conf/druid/
+
+Note** Above <path> denotes the path where you downloaded the druid git repo or atleast the cluster folder
+Look for 'druid.host' property value in cluster/xxxxx/runtime.properties
+xxxx -- could be master/data/query
+
+cluster/master/coordinator_overlord/runtime.properties points to druid.host=m1 (for our coordinator/overlord)
+cluster/data/xxxx/runtime.properties points to druid.host=m2 (where our historical,middleManager,indexer runs)
+cluster/query/xxxx/runtime.properties points to druid.host=m3 (where our broker/router runs)
+cluster/_common/common.runtime.properties in all nodes contains the property 'druid.host' which should be commented out
+
+#to start the cluster
+on node1
+$start-cluster-master-no-zk-server
+
+on node2
+$start-cluster-data-server
+
+on node3
+$start-cluster-query-server
+
+#Access router console
+http://m3:8888
+
+#access coordinator console
+http://m1:8081
+

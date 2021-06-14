@@ -1,3 +1,3 @@
 # Apache-Druid
-This repo contains initial work(setup/working) on Druid.
-Note** When trying/implementing, read the complete file before beginning your work.
+This repo contains my intial work on Apache Druid and working with Druid.
+Note** Please read any file completely before beginning any implementation.

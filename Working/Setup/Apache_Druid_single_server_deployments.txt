@@ -1,0 +1,263 @@
+Druid includes a set of reference configurations and launch scripts for single-machine deployments:
+
+nano-quickstart
+micro-quickstart
+small
+medium
+large
+xlarge
+
+The micro-quickstart is sized for small machines like laptops and is intended for quick evaluation
+use-cases.
+The nano-quickstart is an even smaller configuration, targeting a machine with 1 CPU and 4GB memory. 
+
+The startup scripts for these example configurations run a single ZK instance along with 
+the Druid services. You can choose to deploy ZK separately as well.
+
+The example configurations run the Druid Coordinator and Overlord together in a single 
+process using the optional configuration druid.coordinator.asOverlord.enabled=true
+
+--when druid downloaded and unpacked, configurations can be found as follows:
+--Downloaded druid on windows (although windows is not supported) to look into configs
+
+C:\>cd C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid>dir/p
+ Volume in drive C has no label.
+
+
+ Directory of C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid
+
+06/02/2021  08:04 PM    <DIR>          .
+06/02/2021  08:04 PM    <DIR>          ..
+06/02/2021  08:04 PM    <DIR>          cluster
+06/02/2021  08:04 PM    <DIR>          single-server
+               0 File(s)              0 bytes
+               4 Dir(s)  249,557,012,480 bytes free
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid>cd cluster
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\cluster>dir/p
+ Volume in drive C has no label.
+
+ Directory of C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\cluster
+
+06/02/2021  08:04 PM    <DIR>          .
+06/02/2021  08:04 PM    <DIR>          ..
+06/02/2021  08:04 PM    <DIR>          data
+06/02/2021  08:04 PM    <DIR>          master
+06/02/2021  08:04 PM    <DIR>          query
+06/02/2021  08:04 PM    <DIR>          _common
+               0 File(s)              0 bytes
+               6 Dir(s)  249,556,946,944 bytes free
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\cluster>cd ..
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid>cd single-server
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server>dir/p
+ Volume in drive C has no label.
+ Volume Serial Number is B2C3-C385
+
+ Directory of C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server
+
+06/02/2021  08:04 PM    <DIR>          .
+06/02/2021  08:04 PM    <DIR>          ..
+06/02/2021  08:04 PM    <DIR>          large
+06/02/2021  08:04 PM    <DIR>          medium
+06/02/2021  08:04 PM    <DIR>          micro-quickstart
+06/02/2021  08:04 PM    <DIR>          nano-quickstart
+06/02/2021  08:04 PM    <DIR>          small
+06/02/2021  08:04 PM    <DIR>          xlarge
+               0 File(s)              0 bytes
+               8 Dir(s)  249,556,946,944 bytes free
+
+Druid on single-servers can be run in different ways as mentioned below:
+
+Nano-Quickstart: 1 CPU, 4GB RAM
+Launch command: bin/start-nano-quickstart
+Configuration directory: conf/druid/single-server/nano-quickstart
+
+Micro-Quickstart: 4 CPU, 16GB RAM
+Launch command: bin/start-micro-quickstart
+Configuration directory: conf/druid/single-server/micro-quickstart
+
+Small: 8 CPU, 64GB RAM (~i3.2xlarge)
+Launch command: bin/start-small
+Configuration directory: conf/druid/single-server/small
+
+Medium: 16 CPU, 128GB RAM (~i3.4xlarge)
+Launch command: bin/start-medium
+Configuration directory: conf/druid/single-server/medium
+
+Large: 32 CPU, 256GB RAM (~i3.8xlarge)
+Launch command: bin/start-large
+Configuration directory: conf/druid/single-server/large
+
+X-Large: 64 CPU, 512GB RAM (~i3.16xlarge)
+Launch command: bin/start-xlarge
+Configuration directory: conf/druid/single-server/xlarge
+
+=====================================
+
+#what are configurations within each one of these:
+For example:
+Looking in for single-server for 'large' machines
+
+#Note : the '_common' has common.runtime.properties and each other druid process has its own
+runtime.properties and jvm.config (for memory allocation)
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server>dir/p
+ Volume in drive C has no label.
+ Volume Serial Number is B2C3-C385
+
+ Directory of C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server
+
+06/02/2021  08:04 PM    <DIR>          .
+06/02/2021  08:04 PM    <DIR>          ..
+06/02/2021  08:04 PM    <DIR>          large
+06/02/2021  08:04 PM    <DIR>          medium
+06/02/2021  08:04 PM    <DIR>          micro-quickstart
+06/02/2021  08:04 PM    <DIR>          nano-quickstart
+06/02/2021  08:04 PM    <DIR>          small
+06/02/2021  08:04 PM    <DIR>          xlarge
+               0 File(s)              0 bytes
+               8 Dir(s)  249,559,711,744 bytes free
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server>cd large
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large>dir/p
+ Volume in drive C has no label.
+ Volume Serial Number is B2C3-C385
+
+ Directory of C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large
+
+06/02/2021  08:04 PM    <DIR>          .
+06/02/2021  08:04 PM    <DIR>          ..
+06/02/2021  08:04 PM    <DIR>          broker
+06/02/2021  08:04 PM    <DIR>          coordinator-overlord
+06/02/2021  08:04 PM    <DIR>          historical
+06/02/2021  08:04 PM    <DIR>          middleManager
+06/02/2021  08:04 PM    <DIR>          router
+06/02/2021  08:04 PM    <DIR>          _common
+               0 File(s)              0 bytes
+               8 Dir(s)  249,559,830,528 bytes free
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large>cd broker
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\broker>dir/p
+
+ Directory of C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\broker
+
+06/02/2021  08:04 PM    <DIR>          .
+06/02/2021  08:04 PM    <DIR>          ..
+06/02/2021  08:04 PM               228 jvm.config
+06/02/2021  08:04 PM                40 main.config
+06/02/2021  08:04 PM             1,321 runtime.properties
+               3 File(s)          1,589 bytes
+               2 Dir(s)  249,559,764,992 bytes free
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\broker>cd ..
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large>cd coordinator-overlord
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\coordinator-overlord>dir/p
+
+ Directory of C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\coordinator-overlord
+
+06/02/2021  08:04 PM    <DIR>          .
+06/02/2021  08:04 PM    <DIR>          ..
+06/02/2021  08:04 PM               246 jvm.config
+06/02/2021  08:04 PM                45 main.config
+06/02/2021  08:04 PM             1,177 runtime.properties
+               3 File(s)          1,468 bytes
+               2 Dir(s)  249,559,764,992 bytes free
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\coordinator-overlord>cd ..
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large>cd historical
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\historical>dir/p
+ Directory of C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\historical
+
+06/02/2021  08:04 PM    <DIR>          .
+06/02/2021  08:04 PM    <DIR>          ..
+06/02/2021  08:04 PM               228 jvm.config
+06/02/2021  08:04 PM                44 main.config
+06/02/2021  08:04 PM             1,340 runtime.properties
+               3 File(s)          1,612 bytes
+               2 Dir(s)  249,559,764,992 bytes free
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\historical>cd ..
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large>cd middleManager
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\middleManager>dir/p
+ Volume in drive C has no label.
+ Volume Serial Number is B2C3-C385
+
+ Directory of C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\middleManager
+
+06/02/2021  08:04 PM    <DIR>          .
+06/02/2021  08:04 PM    <DIR>          ..
+06/02/2021  08:04 PM               202 jvm.config
+06/02/2021  08:04 PM                47 main.config
+06/02/2021  08:04 PM             1,564 runtime.properties
+               3 File(s)          1,813 bytes
+               2 Dir(s)  249,559,752,704 bytes free
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\middleManager>cd ..
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large>cd router
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\router>dir/p
+
+ Directory of C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\router
+
+06/02/2021  08:04 PM    <DIR>          .
+06/02/2021  08:04 PM    <DIR>          ..
+06/02/2021  08:04 PM               227 jvm.config
+06/02/2021  08:04 PM                40 main.config
+06/02/2021  08:04 PM             1,245 runtime.properties
+               3 File(s)          1,512 bytes
+               2 Dir(s)  249,559,752,704 bytes free
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\router>cd ..
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large>cd _common
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\_common>dir/p
+
+ Directory of C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\_common
+
+06/02/2021  08:04 PM    <DIR>          .
+06/02/2021  08:04 PM    <DIR>          ..
+06/02/2021  08:04 PM             4,352 common.runtime.properties
+06/02/2021  08:04 PM             2,332 log4j2.xml
+               2 File(s)          6,684 bytes
+               2 Dir(s)  249,559,752,704 bytes free
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\single-server\large\_common>
+
+Similarly we can check for other machine types.
+Or look for cluster configuration:
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid>cd cluster
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\cluster>dir/p
+ Volume in drive C has no label.
+ Volume Serial Number is B2C3-C385
+
+ Directory of C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\cluster
+
+06/02/2021  08:04 PM    <DIR>          .
+06/02/2021  08:04 PM    <DIR>          ..
+06/02/2021  08:04 PM    <DIR>          data
+06/02/2021  08:04 PM    <DIR>          master
+06/02/2021  08:04 PM    <DIR>          query
+06/02/2021  08:04 PM    <DIR>          _common
+               0 File(s)              0 bytes
+               6 Dir(s)  249,561,694,208 bytes free
+
+C:\Users\Win10\Downloads\apache-druid-0.21.1\conf\druid\cluster>
+#note cluster related processes would have higher memory allocations
+

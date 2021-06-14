@@ -306,24 +306,8 @@ Setup Druid on multiple nodes
 <refer 'Apache_Druid_quickstart' file to download and setup Druid on each node.>
 --before starting Druid processes, we need to edit config files in order to have a druid cluster deployed.
 
-<edit configurations as follows>
---refer 'druid_cluster_setup_configs' file
-
-<after editing configs and copying them across machines>
-
-on m1:
-start-cluster-master-no-zk-server
-
-on m2:
-start-cluster-data-server
-
-on m3:
-start-cluster-query-server
-
-Access console:
-<ipaddress of machine hosting router:8888>
-
---check status
+<edit configurations & start ur cluster>
+--refer '\Working\Setup\sample_cluster_configs\for_each_node\Instructions.txt' file
 
 ===================================================
 Basic cluster tuning guide:
